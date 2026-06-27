@@ -1,0 +1,28 @@
+services:
+  ocr-model:
+    build:
+      context: .
+      dockerfile: docker/ocr-server/Dockerfile
+    container_name: ocr-model-local
+    ports:
+      - "8000:8000"
+    environment:
+      OCR_MODEL: ${OCR_LOCAL_MODEL:-lightonai/LightOnOCR-2-1B}
+      OCR_DEVICE: ${OCR_LOCAL_DEVICE:-auto}
+      OCR_DTYPE: ${OCR_LOCAL_DTYPE:-auto}
+      OCR_MAX_NEW_TOKENS: ${OCR_LOCAL_MAX_NEW_TOKENS:-4096}
+      HF_HOME: /models/hf
+      HUGGINGFACE_HUB_CACHE: /models/hf
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ocr_model_cache:/models/hf
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ocr_model_cache:
