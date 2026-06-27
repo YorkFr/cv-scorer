@@ -86,6 +86,12 @@ docker compose -f .\compose.ocr.local.yml up
 python -m pip install -r requirements.txt
 ```
 
+For development and tests:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
 ## Run Client
 
 模型服务启动后，可以这样调用：
@@ -115,6 +121,21 @@ python .\extract_pdf_to_markdown.py .\resume.pdf `
 
 ```powershell
 python .\run_backend_api.py
+```
+
+## Tests
+
+Run lightweight tests:
+
+```powershell
+python -m pytest -q
+```
+
+OCR integration tests are opt-in because they require Docker, the local OCR service, and model inference:
+
+```powershell
+$env:RUN_OCR_TESTS="1"
+python -m pytest -m integration -q
 ```
 
 ## Config

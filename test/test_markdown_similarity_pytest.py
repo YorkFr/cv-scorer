@@ -23,6 +23,7 @@ TEST_DATA_DIR = PROJECT_ROOT / "test" / "cv_pdf"
 OCR_BASE_URL = os.getenv("OCR_BASE_URL", "http://127.0.0.1:8000")
 OCR_MODEL = os.getenv("OCR_MODEL", "lightonai/LightOnOCR-2-1B")
 SIMILARITY_THRESHOLD = 0.95
+RUN_OCR_TESTS = os.getenv("RUN_OCR_TESTS") == "1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,6 +102,11 @@ def extractor() -> PDFMarkdownExtractor:
 
 
 @pytest.mark.parametrize("fixture", FIXTURES, ids=lambda fixture: fixture.pdf_path.name)
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not RUN_OCR_TESTS,
+    reason="Set RUN_OCR_TESTS=1 to run OCR integration tests.",
+)
 def test_reference_markdown_similarity(extractor: PDFMarkdownExtractor, fixture: MarkdownFixture) -> None:
     generated_markdown = extractor.extract_pdf(fixture.pdf_path)
     expected_markdown = fixture.expected_markdown_path.read_text(encoding="utf-8")
