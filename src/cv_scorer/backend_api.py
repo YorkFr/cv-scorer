@@ -13,6 +13,7 @@ from fastapi.responses import PlainTextResponse
 from .pdf_to_markdown import PDFMarkdownExtractor, PDFToMarkdownConfig
 from .pdf_to_png import PDFToPNGConfig, PDFToPNGRenderer
 from .png_to_markdown import DEFAULT_PROMPT, OCRServiceClient, PNGToMarkdownConfig
+from .scoring import score_markdown
 
 
 DEFAULT_MODEL = os.getenv("OCR_MODEL", "lightonai/LightOnOCR-2-1B")
@@ -20,6 +21,7 @@ DEFAULT_OCR_BASE_URL = os.getenv("OCR_BASE_URL", "http://127.0.0.1:8000")
 DEFAULT_TIMEOUT_SECONDS = int(os.getenv("OCR_TIMEOUT_SECONDS", "300"))
 DEFAULT_DPI = 200
 MAX_PROMPT_LENGTH = 8000
+MAX_MARKDOWN_LENGTH = 200000
 
 app = FastAPI(title="CV Scorer Backend API", version="0.1.0")
 
@@ -47,6 +49,16 @@ def _validate_prompt(prompt: str) -> None:
         raise HTTPException(
             status_code=400,
             detail=f"prompt must be at most {MAX_PROMPT_LENGTH} characters.",
+        )
+
+
+def _validate_markdown(markdown: str) -> None:
+    if not markdown.strip():
+        raise HTTPException(status_code=400, detail="markdown must not be empty.")
+    if len(markdown) > MAX_MARKDOWN_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"markdown must be at most {MAX_MARKDOWN_LENGTH} characters.",
         )
 
 
@@ -230,3 +242,9 @@ async def extract_pdf_to_markdown_file(
     input_name = Path(file.filename or "output.pdf").stem
     headers = {"Content-Disposition": f'attachment; filename="{input_name}.md"'}
     return PlainTextResponse(payload["markdown"], headers=headers, media_type="text/markdown")
+
+
+@app.post("/v1/score/markdown")
+async def score_resume_markdown(markdown: str = Form(...)) -> dict[str, Any]:
+    _validate_markdown(markdown)
+    return score_markdown(markdown).to_dict()

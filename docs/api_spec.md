@@ -299,6 +299,45 @@ Response behavior:
 - `Content-Type: text/markdown`
 - `Content-Disposition: attachment; filename="resume.md"`
 
+### 2.6 Score Markdown Resume
+
+Endpoint:
+
+```http
+POST /v1/score/markdown
+Content-Type: multipart/form-data
+```
+
+Form fields:
+
+- `markdown`
+Markdown resume content to parse and score.
+
+Successful response:
+
+```json
+{
+  "total_score": 78.5,
+  "max_score": 100.0,
+  "grade": "B",
+  "summary": "Solid resume with room to strengthen impact and completeness. Score: 78.5/100.",
+  "sections": [
+    {
+      "name": "contact_info",
+      "score": 15.0,
+      "max_score": 15.0,
+      "findings": ["Email detected."],
+      "suggestions": []
+    }
+  ],
+  "profile": {
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "skills": ["Excel", "Power BI"]
+  }
+}
+```
+
 ## 3. Data Flow
 
 Current business backend flow:

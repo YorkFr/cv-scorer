@@ -123,6 +123,13 @@ python .\extract_pdf_to_markdown.py .\resume.pdf `
 python .\run_backend_api.py
 ```
 
+评分 Markdown：
+
+```powershell
+curl -X POST http://127.0.0.1:9000/v1/score/markdown `
+  -F "markdown=# Jane Doe"
+```
+
 ## Tests
 
 Run lightweight tests:

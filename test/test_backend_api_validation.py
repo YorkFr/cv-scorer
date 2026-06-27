@@ -6,9 +6,11 @@ import pytest
 from fastapi import HTTPException
 
 from src.cv_scorer.backend_api import (
+    MAX_MARKDOWN_LENGTH,
     MAX_PROMPT_LENGTH,
     _ensure_image,
     _ensure_pdf,
+    _validate_markdown,
     _validate_dpi,
     _validate_prompt,
 )
@@ -70,3 +72,23 @@ def test_validate_prompt_rejects_too_long_prompt():
 
     assert exc_info.value.status_code == 400
     assert "prompt must be at most" in exc_info.value.detail
+
+
+def test_validate_markdown_accepts_non_empty_markdown():
+    _validate_markdown("# Resume\n\nContent")
+
+
+def test_validate_markdown_rejects_empty_markdown():
+    with pytest.raises(HTTPException) as exc_info:
+        _validate_markdown("  ")
+
+    assert exc_info.value.status_code == 400
+    assert "must not be empty" in exc_info.value.detail
+
+
+def test_validate_markdown_rejects_too_long_markdown():
+    with pytest.raises(HTTPException) as exc_info:
+        _validate_markdown("x" * (MAX_MARKDOWN_LENGTH + 1))
+
+    assert exc_info.value.status_code == 400
+    assert "markdown must be at most" in exc_info.value.detail
