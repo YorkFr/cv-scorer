@@ -59,16 +59,22 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/healthz
 Extract a PDF to Markdown:
 
 ```powershell
-.\.venv\Scripts\python.exe .\extract_pdf_to_markdown.py .\resume.pdf -o .\resume.md
+.\.venv\Scripts\python.exe -m src.cv_scorer.cli pdf-to-markdown .\resume.pdf -o .\resume.md
 ```
 
 Start the backend API:
 
 ```powershell
-.\.venv\Scripts\python.exe .\run_backend_api.py
+.\.venv\Scripts\python.exe -m src.cv_scorer.cli serve
 ```
 
-Score Markdown:
+Score a Markdown resume:
+
+```powershell
+.\.venv\Scripts\python.exe -m src.cv_scorer.cli score-markdown .\resume.md --pretty
+```
+
+Call the scoring API:
 
 ```powershell
 curl -X POST http://127.0.0.1:9000/v1/score/markdown `
